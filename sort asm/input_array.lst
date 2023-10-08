@@ -1,0 +1,118 @@
+     1                                  ;***************************************************************************************************************************
+     2                                  ;Program name: Array Sorting with Pointers. This program demonstrates how it creates an array of pointers to the objects and 
+     3                                  ;sorts the pointers based on their values, enabling efficient sorting of large data sets. 
+     4                                  ;
+     5                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+     6                                  ;published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This 
+     7                                  ;program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+     8                                  ;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+     9                                  
+    10                                  ;You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    11                                  ;****************************************************************************************************************************
+    12                                  
+    13                                  ;****************************************************************************************************************************
+    14                                  
+    15                                  ;Author and Program information
+    16                                  ;  Author name: Drashti Mehta
+    17                                  ;  Author email: dumehta@csu.fullerton.edu
+    18                                  ;  Class and Section: 240 Section 03 
+    19                                  ;  Program name and Due Date: Array Sorting with Pointers / October 9, 2023 at 1:00am
+    20                                  ;
+    21                                  ;Purpose
+    22                                  ;  This file demonstrates how it takes in user inputs of float numbers from the user. 
+    23                                  ;
+    24                                  ;This file
+    25                                  ;  File name: input_array.asm
+    26                                  ;  Language: X86-64
+    27                                  ;  Syntax: Intel
+    28                                  ;  Assemble: nasm -f elf64 -l input_array.lst -o input_array.o input_array.asm
+    29                                  ;****************************************************************************************************************************
+    30                                  
+    31                                  ; External function declarations
+    32                                  extern printf
+    33                                  extern scanf
+    34                                  extern malloc
+    35                                  
+    36                                  section .data
+    37 00000000 256C6600                    format_in db "%lf", 0  ; Format specifier for reading a double
+    38                                  
+    39                                  section .text
+    40                                      global input_array     ; Declaring function
+    41                                  
+    42                                  input_array:
+    43                                  
+    44                                  ;=========== Back up all the integer registers used in this program =======================================================
+    45                                  
+    46 00000000 9C                          pushf                ; Push flags register
+    47 00000001 53                          push rbx             ; Push rbx register
+    48 00000002 51                          push rcx             ; Push rcx register
+    49 00000003 52                          push rdx             ; Push rdx register
+    50 00000004 56                          push rsi             ; Push rsi register
+    51 00000005 57                          push rdi             ; Push rdi register
+    52 00000006 55                          push rbp             ; Push rbp register
+    53 00000007 4150                        push r8              ; Push r8 register
+    54 00000009 4151                        push r9              ; Push r9 register
+    55 0000000B 4152                        push r10             ; Push r10 register
+    56 0000000D 4153                        push r11             ; Push r11 register
+    57 0000000F 4154                        push r12             ; Push r12 register
+    58 00000011 4155                        push r13             ; Push r13 register
+    59 00000013 4156                        push r14             ; Push r14 register
+    60 00000015 4157                        push r15             ; Push r15 register
+    61                                      
+    62 00000017 4989FE                      mov r14, rdi         ; Store the address of the array in r14
+    63 0000001A 4989F7                      mov r15, rsi         ; Store the max_size in r15  
+    64 0000001D 41BD00000000                mov r13, 0           ; Initialize a counter (r13) to zero
+    65                                      
+    66                                  begin:
+    67                                       
+    68 00000023 4D39FD                      cmp r13, r15         ; Compare the counter to the max_size
+    69 00000026 7435                        je done              ; If they are equal, we are done with input
+    70                                      
+    71                                      ; Allocate memory for the float value
+    72 00000028 BF08000000                  mov rdi, 8           ; 8 bytes is the size of a pointer
+    73 0000002D E8(00000000)                call malloc          ; Call malloc to allocate the memory
+    74 00000032 4989C4                      mov r12, rax         ; Store the allocated memory address into r12
+    75                                      
+    76                                      ; Read a floating-point number from the user into the current array element
+    77 00000035 B800000000                  mov rax, 0
+    78 0000003A 48BF-                       mov rdi, format_in   ; Load the format specifier for scanf
+    78 0000003C [0000000000000000] 
+    79 00000044 4C89E6                      mov rsi, r12         ; Load the address of memory into rsi
+    80 00000047 E8(00000000)                call scanf           ; Call the scanf function
+    81                                      
+    82 0000004C 4898                        cdqe                  ; Sign-extend rax to the size of rdi (quadword)
+    83 0000004E 4883F8FF                    cmp rax, -1           ; Check if scanf failed to convert (likely due to Ctrl-D)
+    84 00000052 7409                        je done               ; If so, we are done
+    85                                      
+    86 00000054 4F8924EE                    mov [r14+r13*8], r12  ; Store the pointer in the current array element
+    87 00000058 49FFC5                      inc r13               ; Increment the counter
+    88 0000005B EBC6                        jmp begin             ; Continue reading the next value
+    89                                       
+    90                                  done:
+    91                                     
+    92                                      ; Number of values entered in rax
+    93 0000005D 4C89E8                      mov rax, r13
+    94                                   	  
+    95                                  ;=========== Now cleanup and return to the caller =========================================================================
+    96                                      
+    97 00000060 415F                        pop r15               ; Pop r15 register
+    98 00000062 415E                        pop r14               ; Pop r14 register
+    99 00000064 415D                        pop r13               ; Pop r13 register
+   100 00000066 415C                        pop r12               ; Pop r12 register
+   101 00000068 415B                        pop r11               ; Pop r11 register
+   102 0000006A 415A                        pop r10               ; Pop r10 register
+   103 0000006C 4159                        pop r9                ; Pop r9 register
+   104 0000006E 4158                        pop r8                ; Pop r8 register
+   105 00000070 5D                          pop rbp               ; Pop rbp register
+   106 00000071 5F                          pop rdi               ; Pop rdi register
+   107 00000072 5E                          pop rsi               ; Pop rsi register
+   108 00000073 5A                          pop rdx               ; Pop rdx register
+   109 00000074 59                          pop rcx               ; Pop rcx register
+   110 00000075 5B                          pop rbx               ; Pop rbx register
+   111 00000076 9D                          popf                  ; Pop flags register
+   112                                      
+   113 00000077 C3                          ret                   ; Return from the function
+   114                                  
+   115                                  ; End of program	 ; Return from the function
+   116                                  ;****************************************************************************************************************************
+   117                                  

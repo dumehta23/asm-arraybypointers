@@ -1,0 +1,125 @@
+     1                                  ;***************************************************************************************************************************
+     2                                  ;Program name: Array Sorting with Pointers. This program demonstrates how it creates an array of pointers to the objects and 
+     3                                  ;sorts the pointers based on their values, enabling efficient sorting of large data sets. 
+     4                                  ;
+     5                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+     6                                  ;published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This 
+     7                                  ;program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+     8                                  ;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+     9                                  
+    10                                  ;You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    11                                  ;****************************************************************************************************************************
+    12                                  
+    13                                  ;****************************************************************************************************************************
+    14                                  
+    15                                  ;Author and Program information
+    16                                  ;  Author name: Drashti Mehta
+    17                                  ;  Author email: dumehta@csu.fullerton.edu
+    18                                  ;  Class and Section: 240 Section 03 
+    19                                  ;  Program name and Due Date: Array Sorting with Pointers / October 9, 2023 at 1:00am
+    20                                  ; 
+    21                                  ;Purpose
+    22                                  ;  This file sorts the pointers of values in an array in ascending order.
+    23                                  ;
+    24                                  ;This file
+    25                                  ;  File name: sortbypointers.asm
+    26                                  ;  Language: X86-64
+    27                                  ;  Syntax: Intel
+    28                                  ;  Assemble: nasm -f elf64 -l sortbypointers.lst -o sortbypointers.o sortbypointers.asm
+    29                                  ;****************************************************************************************************************************
+    30                                  
+    31                                  
+    32                                  ;****************************************************************************************************************************
+    33                                  ; Start of program 
+    34                                  
+    35                                   
+    36                                  section .data
+    37 00000000 0000000000000000            array dq 0           ; Array to store pointers to doubles
+    38 00000008 0000000000000000            count dq 0           ; Variable to store the count of elements
+    39                                      
+    40                                  
+    41                                  section .text
+    42                                      global sort_pointers
+    43                                  
+    44                                  sort_pointers:
+    45                                  
+    46                                  ;=========== Back up all the integer registers used in this program =======================================================
+    47 00000000 9C                          pushf                ; Push flags register
+    48 00000001 53                          push rbx             ; Push rbx register
+    49 00000002 51                          push rcx             ; Push rcx register
+    50 00000003 52                          push rdx             ; Push rdx register
+    51 00000004 56                          push rsi             ; Push rsi register
+    52 00000005 57                          push rdi             ; Push rdi register
+    53 00000006 55                          push rbp             ; Push rbp register
+    54 00000007 4150                        push r8              ; Push r8 register
+    55 00000009 4151                        push r9              ; Push r9 register
+    56 0000000B 4152                        push r10             ; Push r10 register
+    57 0000000D 4153                        push r11             ; Push r11 register
+    58 0000000F 4154                        push r12             ; Push r12 register
+    59 00000011 4155                        push r13             ; Push r13 register
+    60 00000013 4156                        push r14             ; Push r14 register
+    61 00000015 4157                        push r15             ; Push r15 register
+    62                                     
+    63 00000017 4889E5                      mov rbp, rsp
+    64                                      
+    65 0000001A 488B7510                    mov rsi, [rbp + 16]  ; Load the address of array[] into rsi
+    66 0000001E 488B4D18                    mov rcx, [rbp + 24]  ; Load the value of count into rcx
+    67                                  
+    68 00000022 4D31C0                      xor r8, r8           ; Initialize outer loop index i to 0
+    69                                      
+    70                                  outer_loop:
+    71 00000025 4939C8                      cmp r8, rcx          ; Compare outer loop index with count
+    72 00000028 7D32                        jge end_sort         ; If index >= count, exit the loop
+    73                                  
+    74 0000002A 4C89C2                      mov rdx, r8          ; Initialize min_index with the current index i
+    75 0000002D 4A8B04C6                    mov rax, [rsi + r8*8] ; Load min pointer with array[i]
+    76                                      
+    77 00000031 4C89C7                      mov rdi, r8          ; Initialize inner loop index j with i
+    78                                      
+    79                                  inner_loop:
+    80 00000034 4839CF                      cmp rdi, rcx          ; Compare inner loop index with count
+    81 00000037 7D1E                        jge inner_loop_end    ; If index >= count, exit the inner loop
+    82                                  
+    83 00000039 4C8B0CFE                    mov r9, [rsi + rdi*8] ; Load pointer at array[j] into r9
+    84 0000003D F30F7E00                    movq xmm0, [rax]      ; Load *min into xmm0
+    85 00000041 F3410F7E09                  movq xmm1, [r9]       ; Load *array[j] into xmm1
+    86 00000046 660F2EC1                    ucomisd xmm0, xmm1     ; Compare *array[j] with *min
+    87                                  
+    88 0000004A 7200                        jb update_min         ; If *array[j] < *min, update min pointer and min_index
+    89                                  
+    90                                  update_min:
+    91 0000004C 488B04FE                    mov rax, [rsi + rdi*8] ; Load pointer at array[j] into rax
+    92 00000050 488904D6                    mov [rsi + rdx*8], rax ; Store *array[j] at array[i]
+    93 00000054 4889FA                      mov rdx, rdi          ; Update min_index with the current index j
+    94                                  
+    95                                  inner_loop_end:
+    96 00000057 48FFC7                      inc rdi               ; Increment inner loop index j
+    97 0000005A EBD8                        jmp inner_loop        ; Jump to the beginning of the inner loop
+    98                                  
+    99                                  end_sort:
+   100 0000005C 49FFC0                      inc r8                ; Increment outer loop index i
+   101 0000005F EBC4                        jmp outer_loop        ; Jump to the beginning of the outer loop
+   102                                  
+   103                                  ;=========== Now cleanup and return to the caller =========================================================================
+   104                                   
+   105 00000061 415F                    	pop r15        ; Pop r15 register                            
+   106 00000063 415E                    	pop r14        ; Pop r14 register                        
+   107 00000065 415D                    	pop r13        ; Pop r13 register                         
+   108 00000067 415C                    	pop r12        ; Pop r12 register                           
+   109 00000069 415B                    	pop r11        ; Pop r11 register                           
+   110 0000006B 415A                    	pop r10        ; Pop r10 register                             
+   111 0000006D 4159                    	pop r9         ; Pop r9 register                             
+   112 0000006F 4158                    	pop r8         ; Pop r8 register                           
+   113 00000071 5D                      	pop rbp		   ; Pop rbp register 
+   114 00000072 5F                      	pop rdi		   ; Pop rdi register 
+   115 00000073 5E                      	pop rsi		   ; Pop rsi register 
+   116 00000074 5A                      	pop rdx		   ; Pop rdx register 
+   117 00000075 59                      	pop rcx		   ; Pop rcx register
+   118 00000076 58                      	pop rax	       ; Pop rax register 
+   119 00000077 9D                      	popf		   ; Pop flags register 
+   120                                  	                    
+   121 00000078 C3                          ret			   ; Return from the function
+   122                                      
+   123                                  ; End of program	 
+   124                                  ;****************************************************************************************************************************
+   125                                  

@@ -1,0 +1,244 @@
+     1                                  ;***************************************************************************************************************************
+     2                                  ;Program name: Array Sorting with Pointers. This program demonstrates how it creates an array of pointers to the objects and 
+     3                                  ;sorts the pointers based on their values, enabling efficient sorting of large data sets. 
+     4                                  ;
+     5                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+     6                                  ;published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This 
+     7                                  ;program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+     8                                  ;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+     9                                  
+    10                                  ;You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    11                                  ;****************************************************************************************************************************
+    12                                  
+    13                                  ;****************************************************************************************************************************
+    14                                  
+    15                                  ;Author and Program information
+    16                                  ;  Author name: Drashti Mehta
+    17                                  ;  Author email: dumehta@csu.fullerton.edu
+    18                                  ;  Class and Section: 240 Section 03 
+    19                                  ;  Program name and Due Date: Array Sorting with Pointers / October 9, 2023 at 1:00am
+    20                                  ; 
+    21                                  ;Purpose
+    22                                  ;  This file calls input and ouput functions and prints out all prompts. It also passes over an array to 
+    23                                  ;  the C function.
+    24                                  ;
+    25                                  ;This file
+    26                                  ;  File name: director.asm
+    27                                  ;  Language: X86-64
+    28                                  ;  Syntax: Intel
+    29                                  ;  Assemble: nasm -f elf64 -l director.lst -o director.o director.asm
+    30                                  ;****************************************************************************************************************************
+    31                                  
+    32                                  
+    33                                  ;****************************************************************************************************************************
+    34                                  ; Start of program 
+    35                                  
+    36                                  ; External function declarations
+    37                                  extern input_array
+    38                                  extern output_array
+    39                                  extern printf
+    40                                  extern scanf
+    41                                  extern output_sorted_array
+    42                                  extern sort_pointers
+    43                                  
+    44                                  section .data
+    45                                  
+    46                                  	; All the prompts that needed to be printed 
+    47 00000000 546869732070726F67-         prompt_1 db "This program will sort all of your doubles.", 10, 0
+    47 00000009 72616D2077696C6C20-
+    47 00000012 736F727420616C6C20-
+    47 0000001B 6F6620796F75722064-
+    47 00000024 6F75626C65732E0A00 
+    48 0000002D 506C6561736520656E-         prompt_2 db 'Please enter floating numbers seperated by white space. After the last numberic input enter atleast one more white space and press control-d', 10, 0 
+    48 00000036 74657220666C6F6174-
+    48 0000003F 696E67206E756D6265-
+    48 00000048 727320736570657261-
+    48 00000051 746564206279207768-
+    48 0000005A 697465207370616365-
+    48 00000063 2E2041667465722074-
+    48 0000006C 6865206C617374206E-
+    48 00000075 756D62657269632069-
+    48 0000007E 6E70757420656E7465-
+    48 00000087 722061746C65617374-
+    48 00000090 206F6E65206D6F7265-
+    48 00000099 207768697465207370-
+    48 000000A2 61636520616E642070-
+    48 000000AB 7265737320636F6E74-
+    48 000000B4 726F6C2D640A00     
+    49 000000BB 0A00                        prompt_newline db '', 10, 0
+    50 000000BD 5468616E6B20796F75-         prompt_3 db "Thank you. You entered these numbers", 10, 0    
+    50 000000C6 2E20596F7520656E74-
+    50 000000CF 657265642074686573-
+    50 000000D8 65206E756D62657273-
+    50 000000E1 0A00               
+    51 000000E3 456E64206F66206F75-         prompt_5 db 'End of output of array.', 10, 0
+    51 000000EC 74707574206F662061-
+    51 000000F5 727261792E0A00     
+    52 000000FC 546865206172726179-         prompt_6 db 'The array is now being sorted without moving any numbers.', 10, 0
+    52 00000105 206973206E6F772062-
+    52 0000010E 65696E6720736F7274-
+    52 00000117 656420776974686F75-
+    52 00000120 74206D6F76696E6720-
+    52 00000129 616E79206E756D6265-
+    52 00000132 72732E0A00         
+    53 00000137 546865206461746120-         prompt_7 db 'The data in the array are now ordered as follows.', 10, 0   
+    53 00000140 696E20746865206172-
+    53 00000149 72617920617265206E-
+    53 00000152 6F77206F7264657265-
+    53 0000015B 6420617320666F6C6C-
+    53 00000164 6F77732E0A00       
+    54 0000016A 456E64206F66206F75-         prompt_8 db 'End of output of array', 10, 0
+    54 00000173 74707574206F662061-
+    54 0000017C 727261790A00       
+    55 00000182 546865206172726179-         prompt_9 db 'The array willbe sent back to the caller function.', 10, 0
+    55 0000018B 2077696C6C62652073-
+    55 00000194 656E74206261636B20-
+    55 0000019D 746F20746865206361-
+    55 000001A6 6C6C65722066756E63-
+    55 000001AF 74696F6E2E0A00     
+    56                                      
+    57                                      
+    58                                      
+    59 000001B6 76616C7565206F6620-         array_value db 'value of array after input array: %lf', 10, 0
+    59 000001BF 617272617920616674-
+    59 000001C8 657220696E70757420-
+    59 000001D1 61727261793A20256C-
+    59 000001DA 660A00             
+    60 000001DD 61727261792073697A-         array_size db 'array size is: %d',10,0
+    60 000001E6 652069733A2025640A-
+    60 000001EF 00                 
+    61                                  
+    62                                   
+    63                                  max_size equ 8
+    64                                  
+    65                                  section .bss
+    66 00000000 <res 40h>                   array resq 8        ; Define array to store floating-point numbers
+    67                                  
+    68                                  
+    69                                  section .text
+    70                                      global director		; Declaring function
+    71                                  
+    72                                  director:
+    73                                   
+    74                                  ;=========== Back up all the integer registers used in this program =======================================================
+    75 00000000 9C                          pushf                ; Push flags register
+    76 00000001 53                          push rbx             ; Push rbx register
+    77 00000002 51                          push rcx             ; Push rcx register
+    78 00000003 52                          push rdx             ; Push rdx register
+    79 00000004 56                          push rsi             ; Push rsi register
+    80 00000005 57                          push rdi             ; Push rdi register
+    81 00000006 55                          push rbp             ; Push rbp register
+    82 00000007 4150                        push r8              ; Push r8 register
+    83 00000009 4151                        push r9              ; Push r9 register
+    84 0000000B 4152                        push r10             ; Push r10 register
+    85 0000000D 4153                        push r11             ; Push r11 register
+    86 0000000F 4154                        push r12             ; Push r12 register
+    87 00000011 4155                        push r13             ; Push r13 register
+    88 00000013 4156                        push r14             ; Push r14 register
+    89 00000015 4157                        push r15             ; Push r15 register
+    90                                       
+    91                                     ; prompt message 1  
+    92 00000017 B800000000                  mov rax, 0
+    93 0000001C 48BF-                       mov rdi, prompt_1
+    93 0000001E [0000000000000000] 
+    94 00000026 E8(00000000)                call printf
+    95                                          
+    96                                      ; prompt message 2  
+    97 0000002B B800000000                  mov rax, 0
+    98 00000030 48BF-                       mov rdi, prompt_2
+    98 00000032 [2D00000000000000] 
+    99 0000003A E8(00000000)                call printf
+   100                                            
+   101                                      ;call input array to read and store numbers
+   102 0000003F B800000000                  mov rax, 0
+   103 00000044 48BF-                       mov rdi, array
+   103 00000046 [0000000000000000] 
+   104 0000004E BE08000000                  mov rsi, max_size
+   105 00000053 E8(00000000)                call input_array
+   106                                      
+   107                                      ; moving rax register rbx 
+   108 00000058 4889C3                      mov rbx, rax
+   109                                          
+   110                                      ;prompt newline
+   111 0000005B B800000000                  mov rax, 0
+   112 00000060 48BF-                       mov rdi, prompt_newline
+   112 00000062 [BB00000000000000] 
+   113 0000006A E8(00000000)                call printf
+   114                                                 
+   115                                      ; prompt message 3 
+   116 0000006F B800000000                  mov rax, 0
+   117 00000074 48BF-                       mov rdi, prompt_3
+   117 00000076 [BD00000000000000] 
+   118 0000007E E8(00000000)                call printf
+   119                                        
+   120                                      ;call output array to print dereferenced array of pointers
+   121 00000083 B800000000                  mov rax, 0
+   122 00000088 48BF-                       mov rdi, array
+   122 0000008A [0000000000000000] 
+   123 00000092 4889DE                      mov rsi, rbx
+   124 00000095 E8(00000000)                call output_array
+   125                                      
+   126                                      ; prompt message 5 
+   127 0000009A B800000000                  mov rax, 0
+   128 0000009F 48BF-                       mov rdi, prompt_5
+   128 000000A1 [E300000000000000] 
+   129 000000A9 E8(00000000)                call printf
+   130                                         
+   131                                      ; prompt message 6 
+   132 000000AE B800000000                  mov rax, 0
+   133 000000B3 48BF-                       mov rdi, prompt_6
+   133 000000B5 [FC00000000000000] 
+   134 000000BD E8(00000000)                call printf
+   135                                          
+   136                                      ; prompt message 7
+   137 000000C2 B800000000                  mov rax, 0
+   138 000000C7 48BF-                       mov rdi, prompt_7
+   138 000000C9 [3701000000000000] 
+   139 000000D1 E8(00000000)                call printf
+   140                                      
+   141                                      ;call output array to print sorted dereferenced array of pointers
+   142 000000D6 B800000000                  mov rax, 0
+   143 000000DB 48BF-                       mov rdi, array
+   143 000000DD [0000000000000000] 
+   144 000000E5 4889DE                      mov rsi, rbx
+   145 000000E8 E8(00000000)                call output_sorted_array
+   146                                    
+   147                                      ; prompt message 8 
+   148 000000ED B800000000                  mov rax, 0
+   149 000000F2 48BF-                       mov rdi, prompt_8
+   149 000000F4 [6A01000000000000] 
+   150 000000FC E8(00000000)                call printf
+   151                                         
+   152                                      ; prompt message 9 
+   153 00000101 B800000000                  mov rax, 0
+   154 00000106 48BF-                       mov rdi, prompt_9
+   154 00000108 [8201000000000000] 
+   155 00000110 E8(00000000)                call printf
+   156                                          
+   157                                  ;=========== Now cleanup and return to the caller =========================================================================
+   158                                    
+   159 00000115 415F                    	pop r15        ; Pop r15 register                            
+   160 00000117 415E                    	pop r14        ; Pop r14 register                        
+   161 00000119 415D                    	pop r13        ; Pop r13 register                         
+   162 0000011B 415C                    	pop r12        ; Pop r12 register                           
+   163 0000011D 415B                    	pop r11        ; Pop r11 register                           
+   164 0000011F 415A                    	pop r10        ; Pop r10 register                             
+   165 00000121 4159                    	pop r9         ; Pop r9 register                             
+   166 00000123 4158                    	pop r8         ; Pop r8 register                           
+   167 00000125 5D                      	pop rbp		   ; Pop rbp register 
+   168 00000126 5F                      	pop rdi		   ; Pop rdi register 
+   169 00000127 5E                      	pop rsi		   ; Pop rsi register 
+   170 00000128 5A                      	pop rdx		   ; Pop rdx register 
+   171 00000129 59                      	pop rcx		   ; Pop rcx register
+   172 0000012A 58                      	pop rax	       ; Pop rax register 
+   173 0000012B 9D                      	popf		   ; Pop flags register 
+   174                                    
+   175                                      ; moving the final sorted array so that the main function can receive it and print it. 
+   176 0000012C 48B8-                       mov rax, array
+   176 0000012E [0000000000000000] 
+   177 00000136 48891F                      mov qword [rdi], rbx
+   178                                                   
+   179 00000139 C3                          ret				; Return from the function
+   180                                      
+   181                                  ; End of program	 
+   182                                  ;****************************************************************************************************************************
